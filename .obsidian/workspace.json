@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "옵시디언 학습법.md",
+                "file": "Research/2026-03-08-research-report.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "옵시디언 학습법"
+              "title": "2026-03-08-research-report"
             }
           }
         ]
@@ -196,11 +196,25 @@
       "daily-notes:Open today's daily note": false,
       "templates:Insert template": false,
       "command-palette:Open command palette": false,
-      "bases:Create new base": false
+      "bases:Create new base": false,
+      "obsidian-git:Open Git source control": false,
+      "obsidian-to-anki-plugin:Obsidian_to_Anki - Scan Vault": false
     }
   },
-  "active": "d525bdd739fdbd1d",
+  "active": "80bcd9417d7952da",
   "lastOpenFiles": [
-    "Welcome.md"
+    "Guides/2026-03-10-obsidian-github-anki-setup.md",
+    "Guides",
+    "chat-to-vault-SKILL.md",
+    "yolov8n.pt",
+    "scripts/auto-research.sh",
+    "CLAUDE.md",
+    "SKILL.md",
+    "Welcome.md",
+    "옵시디언 학습법.md",
+    "Research/2026-03-08-research-report.md",
+    "scripts/save_and_push.py",
+    "scripts",
+    "Research"
   ]
 }
