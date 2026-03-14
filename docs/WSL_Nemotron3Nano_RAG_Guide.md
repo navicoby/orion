@@ -8,10 +8,10 @@ Nemotron 3 Nano 30B 모델을 Windows 로컬 환경에서 구동하고, Qdrant �
 
 | 항목 | 사양 |
 |------|------|
-| GPU | NVIDIA RTX 4080 Laptop (12GB VRAM) |
+| GPU | NVIDIA RTX **** Laptop (12GB VRAM) |
 | RAM | 32GB |
 | OS | Windows + WSL (Ubuntu) |
-| 저장소 | D:\Spatial_AI |
+| 저장소 | D:\***** |
 
 ### 구성 요소
 
@@ -20,7 +20,7 @@ Nemotron 3 Nano 30B 모델을 Windows 로컬 환경에서 구동하고, Qdrant �
 | Ollama | LLM 서빙 (Nemotron 3 Nano 30B) | Windows 로컬 |
 | Qdrant | 벡터 DB (논문 저장) | Docker (port 6333) |
 | bge-m3 | 임베딩 모델 (1024차원, 다국어) | Ollama |
-| pdf_rag.py | PDF -> Qdrant 저장 | C:\Users\navic\ |
+| pdf_rag.py | PDF -> Qdrant 저장 | C:\Users\***\ |
 | rag_query.py | 질문 -> 검색 -> 답변 | ~/rag_query.py (WSL) |
 
 ---
@@ -120,24 +120,24 @@ PDF 파일을 500자 단위로 청크하여 bge-m3로 임베딩 후 Qdrant에 �
 
 ### 5.1 설정
 
-- PDF 폴더: `C:\Users\navic\Documents\pdf_doc`
+- PDF 폴더: `C:\Users\***\Documents\pdf_doc`
 - 컬렉션: `my_documents`
 - 배치 크기: 50
 
 ### 5.2 실행 (WSL)
 
 ```bash
-python3 /mnt/c/Users/navic/pdf_rag.py
+python3 /mnt/c/Users/***/pdf_rag.py
 ```
 
-WSL에서 실행 시 PDF 폴더 경로는 `/mnt/c/Users/navic/Documents/pdf_doc`으로 변환하여 사용한다.
+WSL에서 실행 시 PDF 폴더 경로는 `/mnt/c/Users/***/Documents/pdf_doc`으로 변환하여 사용한다.
 
 ### 5.3 Ollama 접속 설정
 
 WSL에서 Windows의 Ollama에 접근할 때 `localhost`가 아닌 `$(hostname).local:11434`를 사용해야 한다.
 
 ```python
-embeddings = OllamaEmbeddings(model="bge-m3", base_url="http://NS5.local:11434")
+embeddings = OllamaEmbeddings(model="bge-m3", base_url="http://***.local:11434")
 ```
 
 ### 5.4 중복 처리
@@ -176,7 +176,7 @@ WSL에서 Windows의 Ollama와 Docker의 Qdrant에 각각 접근해야 한다.
 
 | 서비스 | WSL에서의 접속 주소 |
 |--------|-------------------|
-| Ollama | http://NS5.local:11434 |
+| Ollama | http://***.local:11434 |
 | Qdrant | http://localhost:6333 |
 
 hostname은 환경에 따라 다를 수 있으며, `socket.gethostname()`으로 자동 감지한다.
@@ -224,7 +224,7 @@ curl http://localhost:6333/collections
 ## 8. 파일 구조
 
 ```
-C:\Users\navic\
+C:\Users\***\
   pdf_rag.py                 -- PDF 저장 스크립트
   rag_query.py               -- (백업용)
   Documents\pdf_doc\         -- PDF 원본 폴더
@@ -260,8 +260,8 @@ Docker
 
 ### 논문 추가
 
-1. PDF를 `C:\Users\navic\Documents\pdf_doc` 폴더에 복사
-2. WSL에서 `python3 /mnt/c/Users/navic/pdf_rag.py` 실행
+1. PDF를 `C:\Users\***\Documents\pdf_doc` 폴더에 복사
+2. WSL에서 `python3 /mnt/c/Users/***/pdf_rag.py` 실행
 3. 새 PDF만 자동 처리되어 Qdrant에 저장
 
 ### 질문
