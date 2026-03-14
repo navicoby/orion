@@ -1,3 +1,8 @@
+---
+layout: default
+title: BIM-AI 설계 프레임워크
+---
+
 # BIM-AI 설계 프레임워크
 
 > IFC → OpenUSD 변환, Qdrant 벡터 DB 기반 속성 관리, LLM 멀티에이전트 설계 자동화
