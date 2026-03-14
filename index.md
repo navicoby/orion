@@ -10,4 +10,4 @@ Spatial Ai, BIM, Landscape Design
 
 * [BIM AI Framework](./docs/BIM-AI-Design-Framework.md)
 * [IFC to Qdrant, USDZ](./docs/IFC-Qdrant-USDZ_pipeline.md)
-* [BIM Research:2026-03-08](./docs/2026-03-08-research-report.md)
+* [BIM Research: 2026-03-08](./Research/2026-03-08-research-report.md)
