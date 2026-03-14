@@ -1,0 +1,27 @@
+---
+---
+@import "{{ site.theme }}";
+
+// 배경과 글자색 강제 지정
+body {
+  background-color: #000000 !important; // 완전 검정
+  color: #ffffff !important;           // 글자는 하얗게
+}
+
+// 컨텐츠 박스 배경도 검정으로 (테마에 따라 필요할 수 있음)
+.container-lg, .main-content, .site-header {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+// 링크 색상이 안 보일 수 있으니 밝은 색으로 변경
+a {
+  color: #4da6ff !important;
+}
+
+// 코드 블록이나 인용구도 어둡게 유지
+code, pre, blockquote {
+  background-color: #222222 !important;
+  color: #eeeeee !important;
+  border-color: #444444 !important;
+}
