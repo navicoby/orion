@@ -8,6 +8,6 @@ Spatial Ai, BIM, Landscape Design
 
 # Documentation
 
-* [BIM AI 프레임워크](./docs/BIM-AI-Design-Framework.md)
-* [사용 방법](./docs/usage.md)
-* [BIM 연구 데이터](./docs/research.md)
+* [BIM AI Framework](./docs/BIM-AI-Design-Framework.md)
+* [IFC to Qdrant, USDZ](./docs/IFC-Qdrant-USDZ pipeline.md)
+* [BIM Research](./docs/research.md)
