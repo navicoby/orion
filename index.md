@@ -4,7 +4,7 @@ title: Orion
 ---
 # Orion Project
 
-Orion, Github: https://github.com/navicoby/orion
+Spatial Ai, BIM, Landscape Design
 
 # Documentation
 
