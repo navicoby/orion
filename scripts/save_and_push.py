@@ -89,6 +89,7 @@ def publish_report(root, report, message=None):
             raise RuntimeError("작성자와 커미터 모두 GitHub noreply 이메일을 사용해야 합니다.")
     content = report.read_text(encoding="utf-8")
     check_report(content)
+    check_report(relative)
     if message:
         check_report(message)
     if report.read_text(encoding="utf-8") != content:

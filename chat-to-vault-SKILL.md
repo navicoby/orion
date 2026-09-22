@@ -1,11 +1,11 @@
 ---
 name: chat-to-vault
-description: Claude와의 대화 내용을 요약 정리하여 옵시디언 볼트에 마크다운으로 저장하고 로컬 저장하는 스킬. Use when user says "대화 정리해줘", "이거 볼트에 저장해줘", "요약해서 옵시디언에 올려줘", "메모로 만들어줘", "정리해서 깃허브에 올려줘", "노트로 만들어줘", "아이디어 정리", "기획 정리", "오늘 대화 정리", or any request to summarize, organize, or save conversation content to Obsidian vault. Also trigger when user mentions "md로 만들어줘", "마크다운으로 정리", "볼트에 넣어줘", "깃허브에 push". Do NOT use for research collection (that's landscape-natcap-research skill).
+description: Claude와의 대화 내용을 요약 정리하여 옵시디언 볼트에 마크다운으로 로컬 저장하는 스킬. Use when user says "대화 정리해줘", "이거 볼트에 저장해줘", "요약해서 옵시디언에 올려줘", "메모로 만들어줘", "정리해서 깃허브에 올려줘", "노트로 만들어줘", "아이디어 정리", "기획 정리", "오늘 대화 정리", or any request to summarize, organize, or save conversation content to Obsidian vault. Also trigger when user mentions "md로 만들어줘", "마크다운으로 정리", "볼트에 넣어줘", "깃허브에 push". Do NOT use for research collection (that's landscape-natcap-research skill).
 ---
 
 # Chat-to-Vault: 대화 정리 → 옵시디언 저장
 
-Claude와 나눈 대화에서 유용한 정보를 추출하여 옵시디언 볼트에 마크다운으로 저장하고 GitHub에 push합니다.
+Claude와 나눈 대화에서 유용한 정보를 추출하여 옵시디언 볼트에 마크다운으로 로컬에 저장합니다. 공개 전송은 별도 요청과 내용 검토 후 진행합니다.
 
 ## 볼트 정보
 - 경로: `~/Documents/orion`

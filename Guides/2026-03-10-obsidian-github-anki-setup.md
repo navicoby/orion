@@ -66,13 +66,16 @@ git push -u origin main
 ### 4단계: .gitignore 설정
 ```bash
 cat > .gitignore << 'EOF'
-.obsidian/workspace.json
-.obsidian/workspace-mobile.json
-.obsidian/workspaces.json
+.obsidian/
 .DS_Store
+.env
+.env.*
+!.env.example
+*.pem
+*.key
 EOF
 ```
-- 기기별 충돌 파일 제외, 플러그인/테마 설정은 포함
+- Obsidian 작업 상태와 플러그인 설정 전체를 로컬에만 보존한다. 이미 Git에 올라간 파일은 제외 규칙만으로 추적이 멈추지 않으므로 로컬 백업 후 추적을 해제한다.
 
 ### 5단계: .claudeignore 설정
 ```bash
