@@ -1,160 +1,156 @@
 #!/usr/bin/env python3
-"""
-save_and_push.py
-옵시디언 볼트에 마크다운 리포트를 저장하고 GitHub에 자동 push하는 스크립트.
-
-사용법:
-    python3 save_and_push.py --vault-path ~/Documents/orion --content "마크다운내용"
-    python3 save_and_push.py --vault-path ~/Documents/orion --file input.md
-    python3 save_and_push.py --vault-path ~/Documents/orion --content "내용" --name "custom-report"
-"""
+"""리포트는 기본적으로 로컬에만 저장한다. --publish로 검토한 한 파일만 전송한다."""
 
 import argparse
-import os
+from datetime import datetime
+from pathlib import Path
+import re
+import shutil
 import subprocess
 import sys
-from datetime import datetime
+import tempfile
 
 
-def ensure_research_folder(vault_path: str) -> str:
-    """Research 폴더가 없으면 생성"""
-    research_dir = os.path.join(vault_path, "Research")
-    os.makedirs(research_dir, exist_ok=True)
-    return research_dir
+def git(root, *args):
+    result = subprocess.run(["git", "-C", str(root), *args], capture_output=True, text=True)
+    if result.returncode:
+        raise RuntimeError("Git 작업 실패: " + args[0] + ". 로컬에서 상태를 확인하세요.")
+    return result.stdout.strip()
 
 
-def generate_filename(custom_name: str = None) -> str:
-    """날짜 기반 파일명 생성"""
-    date_str = datetime.now().strftime("%Y-%m-%d")
-    if custom_name:
-        return f"{date_str}-{custom_name}.md"
-    return f"{date_str}-research-report.md"
+def save_report(root, content, name=None):
+    if name and not re.fullmatch(r"[\w-]{1,100}", name):
+        raise ValueError("이름에는 문자, 숫자, 밑줄, 하이픈만 사용할 수 있습니다.")
+    folder = root / "Research"
+    if folder.is_symlink():
+        raise ValueError("Research 폴더의 심볼릭 링크는 허용하지 않습니다.")
+    folder.mkdir(exist_ok=True)
+    stem = datetime.now().strftime("%Y-%m-%d") + "-" + (name or "research-report")
+    for number in range(1, 10000):
+        target = folder / (stem + (f"-{number}" if number > 1 else "") + ".md")
+        try:
+            with target.open("x", encoding="utf-8") as stream:
+                stream.write(content)
+            return target
+        except FileExistsError:
+            continue
+    raise RuntimeError("사용 가능한 파일명을 찾지 못했습니다.")
 
 
-def save_report(research_dir: str, filename: str, content: str) -> str:
-    """리포트를 Research 폴더에 저장"""
-    filepath = os.path.join(research_dir, filename)
-    
-    # 같은 이름 파일이 있으면 번호 추가
-    if os.path.exists(filepath):
-        base, ext = os.path.splitext(filepath)
-        counter = 2
-        while os.path.exists(f"{base}-{counter}{ext}"):
-            counter += 1
-        filepath = f"{base}-{counter}{ext}"
-    
-    with open(filepath, "w", encoding="utf-8") as f:
-        f.write(content)
-    
-    return filepath
+def check_report(content):
+    patterns = [
+        r"(?i)(?:/Users/|/home/|[A-Z]:\\Users\\|/mnt/[a-z]/Users/)[^/\\\s`]+",
+        r"(?i)[\w.+-]+@(?:gmail|naver|daum|hanmail|icloud)\.(?:com|net)",
+        r"(?<!\d)01[016789][- .]?\d{3,4}[- .]?\d{4}(?!\d)",
+    ]
+    if any(re.search(pattern, content) for pattern in patterns):
+        raise ValueError("개인 경로·이메일·전화번호 형식이 발견되어 전송을 중단했습니다.")
+    executable = shutil.which("gitleaks")
+    if not executable:
+        raise RuntimeError("Gitleaks가 없어 전송을 중단했습니다. 공식 배포본을 설치하세요.")
+    with tempfile.TemporaryDirectory(prefix="report-check-") as tmp:
+        base = Path(tmp)
+        scan = base / "input"
+        scan.mkdir()
+        (scan / "report.md").write_text(content, encoding="utf-8")
+        config = base / "default.toml"
+        config.write_text("[extend]\nuseDefault = true\n", encoding="utf-8")
+        ignore = base / "empty-ignore"
+        ignore.touch()
+        result = subprocess.run([
+            executable, "dir", str(scan), "--config", str(config),
+            "--gitleaks-ignore-path", str(ignore), "--ignore-gitleaks-allow",
+            "--redact=100", "--no-banner", "--no-color",
+        ], capture_output=True, text=True)
+        if result.returncode:
+            raise RuntimeError("비밀정보 검사 미통과: 파일은 보존하고 전송은 중단했습니다.")
 
 
-def git_push(vault_path: str, commit_message: str = None) -> bool:
-    """Git add, commit, push 실행"""
-    if not commit_message:
-        date_str = datetime.now().strftime("%Y-%m-%d")
-        commit_message = f"📋 Research report: {date_str}"
-    
-    try:
-        os.chdir(vault_path)
-        
-        # git add
-        result = subprocess.run(
-            ["git", "add", "."],
-            capture_output=True, text=True, cwd=vault_path
-        )
-        if result.returncode != 0:
-            print(f"❌ git add 실패: {result.stderr}")
-            return False
-        
-        # git commit
-        result = subprocess.run(
-            ["git", "commit", "-m", commit_message],
-            capture_output=True, text=True, cwd=vault_path
-        )
-        if result.returncode != 0:
-            if "nothing to commit" in result.stdout:
-                print("ℹ️ 변경사항 없음, 커밋 스킵")
-                return True
-            print(f"❌ git commit 실패: {result.stderr}")
-            return False
-        
-        # git push
-        result = subprocess.run(
-            ["git", "push"],
-            capture_output=True, text=True, cwd=vault_path
-        )
-        if result.returncode != 0:
-            print(f"❌ git push 실패: {result.stderr}")
-            return False
-        
-        print("✅ GitHub push 완료!")
-        return True
-        
-    except Exception as e:
-        print(f"❌ Git 오류: {e}")
-        return False
+def publish_report(root, report, message=None):
+    relative = report.relative_to(root).as_posix()
+    if report.is_symlink() or report.parent != root / "Research" or report.suffix != ".md":
+        raise ValueError("Research 폴더의 일반 Markdown 파일 한 개만 전송할 수 있습니다.")
+    if Path(git(root, "rev-parse", "--show-toplevel")).resolve() != root:
+        raise ValueError("볼트 경로는 저장소 최상위 폴더여야 합니다.")
+    if git(root, "diff", "--cached", "--name-only"):
+        raise RuntimeError("이미 추가된 다른 변경이 있어 전송을 중단했습니다.")
+    branch = git(root, "symbolic-ref", "--short", "HEAD")
+    if git(root, "config", f"branch.{branch}.remote") != "origin":
+        raise RuntimeError("origin 원격 추적 브랜치를 먼저 설정하세요.")
+    merge = git(root, "config", f"branch.{branch}.merge")
+    if merge != f"refs/heads/{branch}":
+        raise RuntimeError("로컬과 원격 브랜치 이름이 달라 전송을 중단했습니다.")
+    before = git(root, "rev-parse", "HEAD")
+    remote = git(root, "ls-remote", "origin", merge).split()
+    if not remote or remote[0] != before:
+        raise RuntimeError("기존 미전송 커밋 또는 원격 변경이 있습니다. 먼저 동기화하세요.")
+    for field in ("GIT_AUTHOR_IDENT", "GIT_COMMITTER_IDENT"):
+        if not re.search(r"<[^<>]+@users\.noreply\.github\.com>", git(root, "var", field)):
+            raise RuntimeError("작성자와 커미터 모두 GitHub noreply 이메일을 사용해야 합니다.")
+    content = report.read_text(encoding="utf-8")
+    check_report(content)
+    if message:
+        check_report(message)
+    if report.read_text(encoding="utf-8") != content:
+        raise RuntimeError("검사 중 파일이 바뀌어 전송을 중단했습니다.")
+    git(root, "add", "--", relative)
+    git(root, "commit", "--only", "-m", message or "Add reviewed research report", "--", relative)
+    after = git(root, "rev-parse", "HEAD")
+    changed = git(root, "diff-tree", "--no-commit-id", "--name-only", "-z", "-r", after).strip("\0").split("\0")
+    if git(root, "rev-parse", "HEAD^") != before or changed != [relative]:
+        raise RuntimeError("커밋 범위가 예상과 달라 전송을 중단했습니다.")
+    if git(root, "show", f"{after}:{relative}") != content.strip():
+        raise RuntimeError("커밋 내용이 검사 결과와 달라 전송을 중단했습니다.")
+    identities = git(root, "show", "-s", "--format=%ae%n%ce", after).splitlines()
+    if not all(email.endswith("@users.noreply.github.com") for email in identities):
+        raise RuntimeError("커밋 이메일 확인에 실패해 전송을 중단했습니다.")
+    check_report(git(root, "show", "-s", "--format=%B", after))
+    git(root, "-c", "push.followTags=false", "push", "origin", f"{after}:{merge}")
 
 
 def main():
-    parser = argparse.ArgumentParser(description="옵시디언 볼트에 리포트 저장 + GitHub push")
-    parser.add_argument("--vault-path", required=True, help="옵시디언 볼트 경로 (예: ~/Documents/orion)")
-    parser.add_argument("--content", help="마크다운 내용 (직접 입력)")
-    parser.add_argument("--file", help="마크다운 파일 경로 (파일에서 읽기)")
-    parser.add_argument("--name", help="커스텀 파일명 (날짜 뒤에 붙음)")
-    parser.add_argument("--commit-msg", help="커스텀 커밋 메시지")
-    parser.add_argument("--push-only", action="store_true", help="저장 없이 push만 실행")
-    
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--vault-path", required=True)
+    source = parser.add_mutually_exclusive_group()
+    source.add_argument("--content")
+    source.add_argument("--file")
+    source.add_argument("--report", help="이미 저장하고 검토한 Research/*.md 파일")
+    parser.add_argument("--name")
+    parser.add_argument("--commit-msg")
+    parser.add_argument("--publish", action="store_true", help="내용 검토 후 지정한 보고서만 검사·전송")
+    parser.add_argument("--push-only", action="store_true", help=argparse.SUPPRESS)
     args = parser.parse_args()
-    vault_path = os.path.expanduser(args.vault_path)
-    
-    # 볼트 경로 확인
-    if not os.path.isdir(vault_path):
-        print(f"❌ 볼트 경로가 존재하지 않음: {vault_path}")
-        sys.exit(1)
-    
-    # push만 실행
     if args.push_only:
-        success = git_push(vault_path, args.commit_msg)
-        sys.exit(0 if success else 1)
-    
-    # 내용 가져오기
-    content = None
-    if args.content:
-        content = args.content
-    elif args.file:
-        file_path = os.path.expanduser(args.file)
-        if not os.path.isfile(file_path):
-            print(f"❌ 파일이 존재하지 않음: {file_path}")
-            sys.exit(1)
-        with open(file_path, "r", encoding="utf-8") as f:
-            content = f.read()
-    else:
-        # stdin에서 읽기
-        if not sys.stdin.isatty():
-            content = sys.stdin.read()
+        parser.error("전체 변경 전송은 제거됐습니다. --report와 --publish를 사용하세요.")
+    try:
+        root = Path(args.vault_path).expanduser().resolve(strict=True)
+        if args.report:
+            report = root / args.report
+            if report.is_symlink() or (root / "Research").is_symlink():
+                raise ValueError("심볼릭 링크는 전송할 수 없습니다.")
+            report = report.resolve(strict=True)
+            if report.parent != root / "Research" or report.suffix != ".md":
+                raise ValueError("Research 폴더의 Markdown 파일을 지정하세요.")
         else:
-            print("❌ --content 또는 --file 옵션이 필요합니다")
-            sys.exit(1)
-    
-    # 저장
-    research_dir = ensure_research_folder(vault_path)
-    filename = generate_filename(args.name)
-    filepath = save_report(research_dir, filename, content)
-    print(f"📁 저장 완료: {filepath}")
-    
-    # Git push
-    success = git_push(vault_path, args.commit_msg)
-    
-    if success:
-        print(f"\n✅ 전체 완료!")
-        print(f"   📁 파일: {filepath}")
-        print(f"   🔗 GitHub에 push 완료")
-    else:
-        print(f"\n⚠️ 파일은 저장됨, GitHub push 실패")
-        print(f"   📁 파일: {filepath}")
-        print(f"   수동으로 push 필요: cd {vault_path} && git add . && git commit -m 'report' && git push")
+            content = args.content
+            if args.file:
+                content = Path(args.file).expanduser().read_text(encoding="utf-8")
+            if content is None and not sys.stdin.isatty():
+                content = sys.stdin.read()
+            if not content or not content.strip():
+                raise ValueError("저장할 내용이 없습니다.")
+            report = save_report(root, content, args.name)
+        print("로컬 파일: " + report.relative_to(root).as_posix())
+        if args.publish:
+            publish_report(root, report, args.commit_msg)
+            print("검토한 보고서 한 개를 전송했습니다.")
+        else:
+            print("로컬에만 저장했습니다. 내용 검토 후 --report와 --publish로 전송하세요.")
+        return 0
+    except (OSError, ValueError, RuntimeError) as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

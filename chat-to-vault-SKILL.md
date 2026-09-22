@@ -1,6 +1,6 @@
 ---
 name: chat-to-vault
-description: Claude와의 대화 내용을 요약 정리하여 옵시디언 볼트에 마크다운으로 저장하고 GitHub에 자동 push하는 스킬. Use when user says "대화 정리해줘", "이거 볼트에 저장해줘", "요약해서 옵시디언에 올려줘", "메모로 만들어줘", "정리해서 깃허브에 올려줘", "노트로 만들어줘", "아이디어 정리", "기획 정리", "오늘 대화 정리", or any request to summarize, organize, or save conversation content to Obsidian vault. Also trigger when user mentions "md로 만들어줘", "마크다운으로 정리", "볼트에 넣어줘", "깃허브에 push". Do NOT use for research collection (that's landscape-natcap-research skill).
+description: Claude와의 대화 내용을 요약 정리하여 옵시디언 볼트에 마크다운으로 저장하고 로컬 저장하는 스킬. Use when user says "대화 정리해줘", "이거 볼트에 저장해줘", "요약해서 옵시디언에 올려줘", "메모로 만들어줘", "정리해서 깃허브에 올려줘", "노트로 만들어줘", "아이디어 정리", "기획 정리", "오늘 대화 정리", or any request to summarize, organize, or save conversation content to Obsidian vault. Also trigger when user mentions "md로 만들어줘", "마크다운으로 정리", "볼트에 넣어줘", "깃허브에 push". Do NOT use for research collection (that's landscape-natcap-research skill).
 ---
 
 # Chat-to-Vault: 대화 정리 → 옵시디언 저장
@@ -159,16 +159,11 @@ type: meeting-summary
 3. 내용이 충분하면 Anki 카드 3-5개 포함
 4. 옵시디언 내부 링크(`[[관련노트]]`) 활용 가능하면 추가
 
-### Step 3: 볼트 저장 + GitHub Push
-1. 유형별 폴더에 저장 (없으면 자동 생성)
-2. 파일명: `YYYY-MM-DD-제목.md`
-3. 자동 실행:
-```bash
-cd ~/Documents/orion
-git add .
-git commit -m "📝 [유형]: 제목"
-git push
-```
+### Step 3: 로컬 저장
+1. 유형별 폴더에 저장한다. 없으면 로컬에 생성한다.
+2. 파일명은 `YYYY-MM-DD-제목.md`로 한다.
+3. 개인 대화·회의록은 자동 커밋하거나 업로드하지 않는다.
+4. 공개 요청이 있으면 개인 정보와 비공개 내용을 제외한 별도 문서를 만들고, 공개할 파일의 내용을 검토한 후 그 파일만 전송한다. 볼트 전체를 업로드하지 않는다.
 
 ## 폴더 구조
 

@@ -19,8 +19,8 @@ type: setup-guide
 
 ### 볼트 정보
 - 볼트명: `orion`
-- 경로: `~/Documents/orion` (`/Users/navicoby/Documents/Orion`)
-- GitHub: `git@github.com:navicoby/orion.git` (Private)
+- 경로: `~/Documents/orion` (`/Users/USER/Documents/Orion`)
+- GitHub: `git@github.com:navicoby/orion.git` (개인용으로 비공개 설정을 확인할 것)
 
 ### 폴더 구조
 ```
@@ -49,7 +49,8 @@ brew install --cask obsidian
 ```bash
 cd ~/Documents/orion
 git init
-git add .
+# README.md와 .gitignore를 먼저 작성하고 내용을 확인한다.
+git add -- README.md .gitignore
 git commit -m "Initial commit"
 git branch -M main
 git remote add origin git@github.com:navicoby/orion.git
@@ -60,7 +61,7 @@ git push -u origin main
 
 ### 3단계: Obsidian Git 플러그인
 - 설정 → Community plugins → Turn on → Browse → `Obsidian Git` 검색 → Install → Enable
-- 5분마다 자동 백업 가능 (Vault backup interval 설정)
+- 자동 commit·push는 끈다. 로컬 백업과 공개 업로드를 구분하고, 공개 대상 파일만 검토 후 전송한다.
 
 ### 4단계: .gitignore 설정
 ```bash
@@ -132,20 +133,17 @@ Back: 답변 내용
 END
 ```
 
-### 9단계: 리서치 자동 수집 예약
-```bash
-# 스크립트 생성
-mkdir -p ~/Documents/orion/scripts
-cat > ~/Documents/orion/scripts/auto-research.sh << 'EOF'
-#!/bin/bash
-cd ~/Documents/orion
-claude -p "SKILL.md를 읽고 이번 주 조경BIM, 자연자본 자료를 수집해서 Research 폴더에 마크다운 리포트로 저장하고 git add, commit, push까지 실행해줘. 중간에 질문하지 말고 바로 진행해." --allowedTools "WebSearch,Write,Bash"
-EOF
-chmod +x ~/Documents/orion/scripts/auto-research.sh
+### 9단계: 리서치 수집
 
-# 매주 월요일 9시 자동 실행
-echo "0 9 * * 1 ~/Documents/orion/scripts/auto-research.sh" | crontab -
+`scripts/auto-research.sh`는 리포트를 로컬에만 저장한다. 셸 실행과 외부 서비스 도구를 허용하지 않으며, 자동 커밋·전송 지시를 넣지 않는다. 기존 예약 작업이 이전 스크립트를 참조한다면 수정된 스크립트로 교체한 후 사용한다.
+
+전송은 내용을 확인한 뒤 보고서 한 개에 대해 실행한다.
+
+```bash
+python3 scripts/save_and_push.py --vault-path . --report Research/YYYY-MM-DD-research-report.md --publish
 ```
+
+Gitleaks가 없거나 검사에 실패하면 전송하지 않는다. 커밋 이메일은 GitHub 설정에 표시되는 noreply 주소를 사용한다. Obsidian의 설정 폴더는 로컬에 보존하고 Git 추적에서 제외한다.
 
 ## 트러블슈팅
 
@@ -179,7 +177,7 @@ git clone git@github.com:navicoby/orion.git ~/Documents/orion
 START
 Basic
 옵시디언 볼트를 GitHub에 처음 연결하는 명령어 순서는?
-Back: git init → git add . → git commit -m "메시지" → git branch -M main → git remote add origin [주소] → git push -u origin main
+Back: git init → git add -- README.md .gitignore → git commit -m "메시지" → git branch -M main → git remote add origin [주소] → git push -u origin main
 END
 
 START

@@ -1,4 +1,25 @@
-remote_theme: pages-themes/minimal@v0.2.0
-plugins:
-- jekyll-remote-theme # add this line to the plugins list if you already have one
-title: Orion Project
+title: Orion
+keep_files: []
+exclude:
+  - "\"\\354\\230\\265\\354\\213\\234\\353\\224\\224\\354\\226\\270 \\355\\225\\231\\354\\212\\265\\353\\262\\225.md\""
+  - ".claudeignore"
+  - ".gitignore"
+  - "CLAUDE.md"
+  - "Guides"
+  - "Research"
+  - "SKILL.md"
+  - "Welcome.md"
+  - "assets"
+  - "chat-to-vault-SKILL.md"
+  - "docs"
+  - "gaussian_splatting_test.md"
+  - "index.md"
+  - "scripts"
+  - "yolov8n.pt"
+  - .obsidian
+  - .git
+  - tests
+  - Notes
+  - Ideas
+  - Meetings
+  - TechNotes

@@ -140,7 +140,7 @@ nemoclaw ns5 connect
 ```bash
 # 정리
 sudo npm uninstall -g nemoclaw
-rm -rf ~/.nemoclaw ~/NemoClaw /mnt/c/Users/navic/NemoClaw
+rm -rf ~/.nemoclaw ~/NemoClaw /mnt/c/Users/USER/NemoClaw
 
 # OpenShell 재설치
 curl -LsSf https://raw.githubusercontent.com/NVIDIA/OpenShell/main/install.sh | sh

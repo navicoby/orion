@@ -1,11 +1,11 @@
 ---
 name: landscape-natcap-research
-description: 조경 BIM(Landscape BIM)과 자연자본(Natural Capital) 분야의 최신 논문, 기사, 동향을 수집하고 옵시디언 볼트에 마크다운 리포트를 자동 저장한 후 GitHub에 자동 push하는 스킬. Use when user says "자료 수집", "리서치", "논문 찾아줘", "최신 동향", "조경 BIM", "자연자본", "natural capital", "landscape BIM", "생태계 서비스", "ecosystem services", "탄소 크레딧", "biodiversity", "green infrastructure", or any request related to collecting research on landscape architecture, BIM for landscape, natural capital accounting, or ecosystem services. Also trigger when user mentions "GIS AI", "환경영향평가", "탄소중립 조경", "ESG 자연자본", or "NbS (Nature-based Solutions)". Do NOT use for general AI news or unrelated BIM topics like structural/MEP BIM.
+description: 조경 BIM(Landscape BIM)과 자연자본(Natural Capital) 분야의 최신 논문, 기사, 동향을 수집하고 옵시디언 볼트에 마크다운 리포트를 로컬에 저장하고 명시적으로 검토한 파일만 전송하는 스킬. Use when user says "자료 수집", "리서치", "논문 찾아줘", "최신 동향", "조경 BIM", "자연자본", "natural capital", "landscape BIM", "생태계 서비스", "ecosystem services", "탄소 크레딧", "biodiversity", "green infrastructure", or any request related to collecting research on landscape architecture, BIM for landscape, natural capital accounting, or ecosystem services. Also trigger when user mentions "GIS AI", "환경영향평가", "탄소중립 조경", "ESG 자연자본", or "NbS (Nature-based Solutions)". Do NOT use for general AI news or unrelated BIM topics like structural/MEP BIM.
 ---
 
 # Landscape BIM & Natural Capital Research Collector
 
-조경 BIM과 자연자본 분야의 최신 자료를 수집하고, 옵시디언 볼트에 마크다운으로 저장한 후 GitHub에 자동 push합니다.
+조경 BIM과 자연자본 분야의 최신 자료를 수집하고, 옵시디언 볼트에 마크다운으로 저장합니다. 저장만으로 커밋하거나 전송하지 않습니다.
 
 ## 수집 대상 키워드
 
@@ -113,33 +113,21 @@ END
 (주요 개념 3-5개를 안키 카드로 생성)
 ```
 
-### Step 4: 볼트 저장 + GitHub Push
+### Step 4: 로컬 저장과 검토 후 전송
 
-리포트 생성 후 자동으로:
+리포트를 `Research/YYYY-MM-DD-research-report.md`에 저장한다. 자동 커밋·전송은 하지 않는다.
 
-1. 파일을 옵시디언 볼트의 `Research/` 폴더에 저장
-2. 파일명 형식: `YYYY-MM-DD-research-report.md`
-3. git add → commit → push 실행
-
-**저장 및 push 스크립트 실행:**
 ```bash
-python3 /path/to/skill/scripts/save_and_push.py --vault-path ~/Documents/orion --file-name "YYYY-MM-DD-research-report.md" --content "마크다운 내용"
+python3 scripts/save_and_push.py --vault-path . --file input.md
 ```
 
-또는 Claude Code에서 직접:
+사용자가 업로드를 명시하고 보고서 내용을 검토한 경우에만 해당 파일을 지정한다.
+
 ```bash
-# 1. Research 폴더 생성 (없으면)
-mkdir -p ~/Documents/orion/Research
-
-# 2. 파일 저장 (Claude Code가 직접 작성)
-# Claude Code: "리포트를 ~/Documents/orion/Research/2026-03-08-research-report.md에 저장해줘"
-
-# 3. Git push
-cd ~/Documents/orion
-git add .
-git commit -m "📋 Research report: YYYY-MM-DD"
-git push
+python3 scripts/save_and_push.py --vault-path . --report Research/YYYY-MM-DD-research-report.md --publish
 ```
+
+전송에는 공식 Gitleaks 설치와 GitHub noreply 커밋 이메일 설정이 필요하다. 개인정보 형식 또는 비밀정보가 발견되거나 검사 도구가 없으면 파일을 로컬에 보존하고 중단한다. 다른 변경이 이미 추가돼 있거나 미전송 커밋이 있으면 전송하지 않는다. 검사는 보조 수단이며 공개 적합성은 사람이 확인한다.
 
 ## 볼트 설정
 
@@ -189,4 +177,4 @@ Claude Code가 자동으로:
 1. 웹 검색으로 자료 수집
 2. 마크다운 리포트 생성
 3. Research/ 폴더에 저장
-4. git add → commit → push 실행
+4. 로컬 저장 완료를 알린다. 업로드를 요청받은 경우에만 위 전송 절차를 따른다.
